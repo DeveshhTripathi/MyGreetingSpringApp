@@ -1,6 +1,5 @@
 package org.example.greetingspring;
-
-
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Service;
 
@@ -15,24 +14,6 @@ public class GreetingService {
     public GreetingService(GreetingRepository greetingRepository) {
         this.greetingRepository = greetingRepository;
     }
-    @GetMapping("/{name}")
-    public Greeting getGreet(@PathVariable String name){
-        return new Greeting("Hello, "+name+"!");
-    }
-    @PostMapping("/post")
-    public Greeting postGreeting(@RequestBody Greeting greeting) {
-        return new Greeting("Received: " + greeting.getMessage());
-    }
-
-    @PutMapping("/update/{name}")
-    public Greeting putGreeting(@PathVariable String name, @RequestBody Greeting greeting) {
-        return new Greeting("Updated: " + name + " -> " + greeting.getMessage());
-    }
-
-    @DeleteMapping("/remove/{name}")
-    public Greeting deleteGreeting(@PathVariable String name) {
-        return new Greeting("Deleted: " + name);
-    }
 
     public Greeting saveGreeting(Greeting greeting) {
         return greetingRepository.save(greeting);
@@ -43,9 +24,20 @@ public class GreetingService {
         return greeting.orElse(new Greeting("Greeting not found!"));
     }
 
-
-
-
+    public List<Greeting> getAllGreetings() {
+        return greetingRepository.findAll();
+    }
+    public Greeting updateGreeting(Long id, Greeting newGreeting) {
+        return greetingRepository.findById(id)
+                .map(existingGreeting -> {
+                    existingGreeting.setMessage(newGreeting.getMessage());
+                    return greetingRepository.save(existingGreeting);
+                })
+                .orElseThrow(() -> new RuntimeException("Greeting not found with id: " + id));
+    }
 
 
 }
+
+
+
